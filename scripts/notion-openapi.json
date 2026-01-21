@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Notion API",
-    "version": "2.0.0",
-    "description": "Notion API 2025-09-03 - Data Source Edition. Breaking change: Database endpoints replaced with data source endpoints.",
+    "version": "2.1.0",
+    "description": "Notion API 2025-09-03 - Full API coverage including databases, data sources, pages, blocks, users, comments, file uploads, and OAuth endpoints. Database and data source concepts are now separated - use data source endpoints for querying and property management.",
     "license": {
       "name": "MIT",
       "url": "https://github.com/makenotion/notion-sdk-js/blob/main/LICENSE"
@@ -269,6 +269,10 @@
   ],
   "tags": [
     {
+      "name": "Databases",
+      "description": "Database endpoints for managing database containers"
+    },
+    {
       "name": "Data sources",
       "description": "Data source endpoints for querying and managing databases"
     },
@@ -291,6 +295,14 @@
     {
       "name": "Comments",
       "description": "Comment endpoints"
+    },
+    {
+      "name": "File uploads",
+      "description": "File upload endpoints for uploading files to Notion"
+    },
+    {
+      "name": "OAuth",
+      "description": "OAuth endpoints for authentication"
     }
   ],
   "paths": {
@@ -2232,6 +2244,1263 @@
         },
         "deprecated": false,
         "security": []
+      }
+    },
+    "/v1/databases/{database_id}": {
+      "get": {
+        "summary": "Retrieve a database",
+        "description": "Retrieves a database object and returns the list of data sources under the database with their IDs and names",
+        "operationId": "retrieve-a-database",
+        "tags": [
+          "Databases"
+        ],
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "path",
+            "description": "Identifier for a Notion database",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with database object including data_sources array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "database"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "data_sources": {
+                      "type": "array",
+                      "description": "Array of data sources under this database",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "title": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "description": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "icon": {
+                      "type": "object"
+                    },
+                    "cover": {
+                      "type": "object"
+                    },
+                    "parent": {
+                      "type": "object"
+                    },
+                    "created_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "last_edited_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    },
+                    "in_trash": {
+                      "type": "boolean"
+                    },
+                    "is_inline": {
+                      "type": "boolean"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "public_url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found or integration lacks access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      },
+      "patch": {
+        "summary": "Update a database",
+        "description": "Updates the attributes (title, description, icon, cover) of a database. To update data source properties, use the Update a data source endpoint instead.",
+        "operationId": "update-a-database",
+        "tags": [
+          "Databases"
+        ],
+        "parameters": [
+          {
+            "name": "database_id",
+            "in": "path",
+            "description": "Identifier for a Notion database",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "array",
+                    "description": "Title of the database as rich text",
+                    "items": {
+                      "$ref": "#/components/schemas/richTextRequest"
+                    }
+                  },
+                  "description": {
+                    "type": "array",
+                    "description": "Description of the database as rich text",
+                    "items": {
+                      "$ref": "#/components/schemas/richTextRequest"
+                    }
+                  },
+                  "icon": {
+                    "type": "object",
+                    "description": "Page icon for the database (emoji or external file)",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["emoji", "external"]
+                      },
+                      "emoji": {
+                        "type": "string"
+                      },
+                      "external": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "cover": {
+                    "type": "object",
+                    "description": "Cover image for the database (external file only)",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["external"]
+                      },
+                      "external": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "is_inline": {
+                    "type": "boolean",
+                    "description": "Whether the database appears inline or as a full page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/v1/databases": {
+      "post": {
+        "summary": "Create a database",
+        "description": "Creates a database as a subpage in a specified parent page. Also creates the initial data source and first table view.",
+        "operationId": "create-a-database",
+        "tags": [
+          "Databases"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "parent",
+                  "initial_data_source"
+                ],
+                "properties": {
+                  "parent": {
+                    "type": "object",
+                    "description": "Parent page for the database",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["page_id"]
+                      },
+                      "page_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": ["page_id"]
+                  },
+                  "initial_data_source": {
+                    "type": "object",
+                    "description": "Initial data source configuration",
+                    "properties": {
+                      "properties": {
+                        "type": "object",
+                        "description": "Property schema for the data source"
+                      }
+                    },
+                    "required": ["properties"]
+                  },
+                  "title": {
+                    "type": "array",
+                    "description": "Title of the database as rich text",
+                    "items": {
+                      "$ref": "#/components/schemas/richTextRequest"
+                    }
+                  },
+                  "description": {
+                    "type": "array",
+                    "description": "Description of the database as rich text",
+                    "items": {
+                      "$ref": "#/components/schemas/richTextRequest"
+                    }
+                  },
+                  "icon": {
+                    "type": "object",
+                    "description": "Page icon for the database"
+                  },
+                  "cover": {
+                    "type": "object",
+                    "description": "Cover image for the database"
+                  },
+                  "is_inline": {
+                    "type": "boolean",
+                    "description": "Whether the database appears inline or as a full page"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Integration lacks insert content capabilities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 403
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/v1/file_uploads": {
+      "get": {
+        "summary": "List file uploads",
+        "description": "Retrieves a paginated list of file uploads for the workspace",
+        "operationId": "list-file-uploads",
+        "tags": [
+          "File uploads"
+        ],
+        "parameters": [
+          {
+            "name": "start_cursor",
+            "in": "query",
+            "description": "Pagination cursor for the next page of results",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "Number of results to return (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 100
+            }
+          },
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with list of file uploads",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "list"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "object": {
+                            "type": "string",
+                            "example": "file_upload"
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": ["pending", "uploaded", "expired", "failed"]
+                          },
+                          "filename": {
+                            "type": "string"
+                          },
+                          "content_type": {
+                            "type": "string"
+                          },
+                          "created_time": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "expiry_time": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "next_cursor": {
+                      "type": "string"
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      },
+      "post": {
+        "summary": "Create a file upload",
+        "description": "Initiates a file upload process and returns upload credentials. This is the first step in a multi-step upload process.",
+        "operationId": "create-file-upload",
+        "tags": [
+          "File uploads"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "filename",
+                  "content_type"
+                ],
+                "properties": {
+                  "filename": {
+                    "type": "string",
+                    "description": "Name of the file being uploaded. Maximum length is 900 bytes including file extension.",
+                    "maxLength": 900
+                  },
+                  "content_type": {
+                    "type": "string",
+                    "description": "MIME type of the file (e.g., 'image/png', 'application/pdf')"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response with file upload object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "file_upload"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "pending"
+                    },
+                    "filename": {
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "type": "string"
+                    },
+                    "created_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "expiry_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/v1/file_uploads/{file_upload_id}": {
+      "get": {
+        "summary": "Retrieve a file upload",
+        "description": "Retrieves the current status and metadata of a file upload",
+        "operationId": "retrieve-file-upload",
+        "tags": [
+          "File uploads"
+        ],
+        "parameters": [
+          {
+            "name": "file_upload_id",
+            "in": "path",
+            "description": "Identifier for the file upload",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with file upload object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "file_upload"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["pending", "uploaded", "expired", "failed"]
+                    },
+                    "filename": {
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "type": "string"
+                    },
+                    "created_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "expiry_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File upload not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/v1/file_uploads/{file_upload_id}/send": {
+      "post": {
+        "summary": "Send file upload content",
+        "description": "Sends the file content for a previously created file upload. Supports single-part and multi-part uploads.",
+        "operationId": "send-file-upload",
+        "tags": [
+          "File uploads"
+        ],
+        "parameters": [
+          {
+            "name": "file_upload_id",
+            "in": "path",
+            "description": "Identifier for the file upload",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The file content to upload"
+                  },
+                  "part_number": {
+                    "type": "integer",
+                    "description": "Part number for multi-part uploads (1-indexed)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "file_upload"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/v1/file_uploads/{file_upload_id}/complete": {
+      "post": {
+        "summary": "Complete a file upload",
+        "description": "Finalizes a multi-part file upload and confirms completion. This is the final step in a multi-part upload process.",
+        "operationId": "complete-file-upload",
+        "tags": [
+          "File uploads"
+        ],
+        "parameters": [
+          {
+            "name": "file_upload_id",
+            "in": "path",
+            "description": "Identifier for the file upload",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "$ref": "#/components/parameters/notionVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with completed file upload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "file_upload"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "uploaded"
+                    },
+                    "filename": {
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/v1/oauth/token": {
+      "post": {
+        "summary": "Create or refresh an access token",
+        "description": "Creates a new access token using an authorization code or refreshes an existing token",
+        "operationId": "oauth-token",
+        "tags": [
+          "OAuth"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "grant_type"
+                ],
+                "properties": {
+                  "grant_type": {
+                    "type": "string",
+                    "description": "Type of grant: 'authorization_code' for new tokens or 'refresh_token' to refresh",
+                    "enum": ["authorization_code", "refresh_token"]
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "Authorization code received from OAuth flow (required when grant_type is 'authorization_code')"
+                  },
+                  "redirect_uri": {
+                    "type": "string",
+                    "description": "Redirect URI used in the authorization request (required when grant_type is 'authorization_code')"
+                  },
+                  "refresh_token": {
+                    "type": "string",
+                    "description": "Refresh token to exchange for a new access token (required when grant_type is 'refresh_token')"
+                  },
+                  "external_account": {
+                    "type": "object",
+                    "description": "External account information for Link Preview integrations",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response with access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "token_type": {
+                      "type": "string",
+                      "example": "bearer"
+                    },
+                    "bot_id": {
+                      "type": "string"
+                    },
+                    "workspace_id": {
+                      "type": "string"
+                    },
+                    "workspace_name": {
+                      "type": "string"
+                    },
+                    "workspace_icon": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "object"
+                    },
+                    "duplicated_template_id": {
+                      "type": "string"
+                    },
+                    "refresh_token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid grant type, code, or refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid client credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v1/oauth/introspect": {
+      "post": {
+        "summary": "Introspect an access token",
+        "description": "Verifies the validity of an access token and returns information about the token",
+        "operationId": "oauth-introspect",
+        "tags": [
+          "OAuth"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "The access token to introspect"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response with token information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "active": {
+                      "type": "boolean",
+                      "description": "Whether the token is currently active"
+                    },
+                    "bot_id": {
+                      "type": "string"
+                    },
+                    "workspace_id": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "object"
+                    },
+                    "request_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v1/oauth/revoke": {
+      "post": {
+        "summary": "Revoke an access token",
+        "description": "Revokes an access token, making it no longer valid for API requests",
+        "operationId": "oauth-revoke",
+        "tags": [
+          "OAuth"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "The access token to revoke"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token successfully revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "request_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
       }
     }
   }

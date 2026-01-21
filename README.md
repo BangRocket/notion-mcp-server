@@ -64,7 +64,17 @@ If you have hardcoded tool names or prompts that reference the old database tool
 | `update-a-database` | `update-a-data-source` | `database_id` → `data_source_id` |
 | `create-a-database` | `create-a-data-source` | No change (uses `parent.page_id`) |
 
-**Total tools now: 21** (was 19 in v1.x)
+**Total tools now: 32** (was 19 in v1.x)
+
+### What's new in v2.1.0
+
+**New endpoints added:**
+
+| Endpoint Category | New Tools |
+| ---------------- | --------- |
+| Database endpoints | `retrieve-a-database`, `update-a-database`, `create-a-database` |
+| File upload endpoints | `create-file-upload`, `send-file-upload`, `complete-file-upload`, `retrieve-file-upload`, `list-file-uploads` |
+| OAuth endpoints | `oauth-token`, `oauth-introspect`, `oauth-revoke` |
 
 ---
 
